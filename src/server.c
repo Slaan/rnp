@@ -10,7 +10,7 @@
 #include <sys/types.h>
 #include <errno.h>
 
-#define MAX_CLIENTS 1
+#define MAX_CLIENTS 2
 #define BUFFER_SIZE 255
 
 /*void* connection_handler(int sock) {
@@ -133,6 +133,7 @@ int main(int argc, char *argv[]) {
     //If something happened on the master socket , then its an incoming connection
     if (FD_ISSET(master_socket, &readfds))
     {
+    	printf("new connection!\n");
       if ((new_socket = accept(master_socket, (struct sockaddr *)&self,
     			(socklen_t*)&addrlen))<0)
       {
@@ -159,9 +160,11 @@ int main(int argc, char *argv[]) {
          	{
            	client_socket[i] = new_socket;
            	printf("Adding to list of sockets as %d\n" , i); 
+         		break;
          	}
       	}
      } else {
+     printf("2\n");
      	 if( send(new_socket, message2, strlen(message2),MSG_NOSIGNAL) != strlen(message2) ) 
      	 {
        		perror("send");
@@ -169,36 +172,35 @@ int main(int argc, char *argv[]) {
        printf("connection rejected, maximum number %d of clients reached \n", MAX_CLIENTS);
        close(new_socket);
      }
+   }
        
-     //else its some IO operation on some other socket :)
-     for (i = 0; i < MAX_CLIENTS; i++)
+   //else its some IO operation on some other socket :)
+   for (i = 0; i < MAX_CLIENTS; i++)
+   {
+     sd = client_socket[i];    
+     if (FD_ISSET( sd , &readfds))
      {
-       printf("muh\n");
-       sd = client_socket[i];    
-       if (FD_ISSET( sd , &readfds))
+       //Check if it was for closing , and also read the incoming message
+       if ((valread = read( sd , buffer, 1024)) == 0)
        {
-         //Check if it was for closing , and also read the incoming message
-         if ((valread = read( sd , buffer, 1024)) == 0)
-         {
-           //Somebody disconnected , get his details and print
-           getpeername(sd , (struct sockaddr*)&self , (socklen_t*)&addrlen);
-           printf("Host disconnected , ip %s , port %d \n" , inet_ntoa
-           (self.sin_addr) , ntohs(self.sin_port));
-                     
-           //Close the socket and mark as 0 in list for reuse
-           close( sd );
-           client_socket[i] = 0;
-         }
-                  
-           //Echo back the message that came in
-         else {
-           //set the string terminating NULL byte on the end of the data read
-           buffer[valread] = '\0';
-           send(sd , buffer , strlen(buffer) ,  MSG_NOSIGNAL );
-         }
+         //Somebody disconnected , get his details and print
+         getpeername(sd , (struct sockaddr*)&self , (socklen_t*)&addrlen);
+         printf("Host disconnected , ip %s , port %d \n" , inet_ntoa
+         (self.sin_addr) , ntohs(self.sin_port));
+                   
+         //Close the socket and mark as 0 in list for reuse
+         close( sd );
+         client_socket[i] = 0;
+       }
+                
+         //Echo back the message that came in
+       else {
+         //set the string terminating NULL byte on the end of the data read
+         buffer[valread] = '\0';
+         send(sd , buffer , strlen(buffer) ,  MSG_NOSIGNAL );
        }
      }
    }
  }         
-	return 0;
+ return 0;
 }
