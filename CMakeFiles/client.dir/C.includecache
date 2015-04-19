@@ -1,0 +1,24 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/slaan/git/rnp/src/client.c
+stdio.h
+-
+string.h
+-
+strings.h
+-
+stdbool.h
+-
+sys/socket.h
+-
+sys/signal.h
+-
+netinet/in.h
+-
+
