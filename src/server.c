@@ -159,7 +159,6 @@ int main(int argc, char *argv[]) {
          	{
            	client_socket[i] = new_socket;
            	printf("Adding to list of sockets as %d\n" , i); 
-           	break;
          	}
       	}
      } else {
@@ -167,9 +166,8 @@ int main(int argc, char *argv[]) {
      	 {
        		perror("send");
        }
-     printf("connection rejected, maximum number %d of clients reached \n", MAX_CLIENTS);
-     close(new_socket);
-     break;
+       printf("connection rejected, maximum number %d of clients reached \n", MAX_CLIENTS);
+       close(new_socket);
      }
        
      //else its some IO operation on some other socket :)
