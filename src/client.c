@@ -8,7 +8,6 @@
 
 void sigpipe_handler() {
   printf("Pipe to server is broken.");
-  return 0;
 }
 
 void print_help() {
