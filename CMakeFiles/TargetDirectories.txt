@@ -1,2 +1,0 @@
-/home/slaan/git/rnp/CMakeFiles/client.dir
-/home/slaan/git/rnp/CMakeFiles/server.dir
