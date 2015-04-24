@@ -6,15 +6,10 @@
 
 #define MAX_CLIENTS 3
 
-void* connection_handler(int sock) {
-  int err;
-  char buffer[255];  
-  bzero(buffer, 255);
-  err = read(sock, buffer, 255);
-  if (err == 0) {
-    fprintf(stderr, "Couldn't read! %d", sock);
-    // exit thread
-  }
+void sigpipe_handler() {
+  fprintf(stderr, "Server-Error: Pipe is broken!\n");
+  // kill all open connections
+  exit(0);
 }
 
 void print_help() {

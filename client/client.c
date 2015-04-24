@@ -27,7 +27,7 @@ void print_with_newline(char* buffer) {
     int length = strlen(buffer);
     printf("%s", buffer);
     if (buffer[length-1] != '\n') {
-      // print new line, when string doesn't contain it
+      // print new line, when string doesn't end with it
       puts("");
     }
 }
