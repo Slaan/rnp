@@ -50,28 +50,10 @@ bool cmd_reverse(char* str) {
   return true;
 }
 
-bool cmd_bye(char* str) {
-  // dummy
-  return false;
-}
-
-bool cmd_shutdown(char* str) {
-  // dummy
-  return false;
-}
-
 bool match_protocol(char* str) {
-  if (!ensure_protocol(str)) {
-    return false;   
-  }
   if (!cmd_lowercase(str) 
    && !cmd_uppercase(str)
-   && !cmd_reverse(str)
-   && !cmd_bye(str)
-   && !cmd_shutdown(str)) {
-    // no command was successful
-    bzero(str, sizeof(str));
-    strcpy(str, "ERROR Unknown command.\n");
+   && !cmd_reverse(str)) {
     return false;
    }
   append_to_ok(str);
