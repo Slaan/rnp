@@ -51,6 +51,12 @@ int main(int argc, char *argv[]) {
     fprintf(stderr, "Couldn't connect to %s:%d.\n", argv[1], port);
     return 1;
   }
+  
+  err = recv(sock_fd, buffer, sizeof(buffer), 0);
+  if (err != 0) {
+  	puts(buffer);
+  } 
+  
   while (!done) {
     printf(" > ");
     bzero(buffer, sizeof(buffer));
