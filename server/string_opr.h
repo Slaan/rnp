@@ -26,6 +26,12 @@ int size_to_next_space(char* str);
  */
 bool ends_with_newline(char* str);
 
+/**
+ * Return true when more then one '\n' is located in string
+ * and false, when 1 >= amount of '\n.
+ */
+bool has_more_then_one_newline(char* str);
+
 bool cmd_matches(char* cmd, char* str, int length);
 
 void lowercase(char* str);

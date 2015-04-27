@@ -19,7 +19,7 @@
 #define SHUTDOWN_LENGTH 30
 
 void print_help() {
-  fprintf(stderr, "Usage: ./server <port>\n");
+  fprintf(stderr, "Usage: ./server <port> <password>\n");
 }
 
 int sockets_full(int sockets[]) {
@@ -54,10 +54,10 @@ int main(int argc, char *argv[]) {
   char *error_wrong_pass = "ERROR wrong password \n";
   char *ok_bye = "OK BYE\n";
   char buffer[BUFFER_SIZE];  
-  char * first_word;
+  char first_word[255], rest[255];
   
   bzero(buffer, BUFFER_SIZE);
-  if (argc != 2) {
+  if (argc != 3) {
     fprintf(stderr, "Invalid number of arguments!\n");
     print_help();
     return 1;
@@ -65,6 +65,11 @@ int main(int argc, char *argv[]) {
   // parse port
   if (sscanf(argv[1], "%d", &port) != 1) {
     fprintf(stderr, "Can't parse port: '%s'\n", argv[2]);
+    print_help();
+    return 1;
+  }
+  if (is_empty_string(argv[2])) {
+    fprintf(stderr, "Can't read password!");
     print_help();
     return 1;
   }
@@ -203,24 +208,26 @@ int main(int argc, char *argv[]) {
             string_length = strlen(error_message_too_long);
       			send(sd, error_message_too_long, string_length, MSG_NOSIGNAL);
       		}
-          if (!ends_with_newline(buffer)) {
-            string_length = strlen(error_no_newline);
-      			send(sd, error_no_newline, string_length, MSG_NOSIGNAL);
+          if (!ends_with_newline(buffer) || has_more_then_one_newline(buffer)) {
+            err = 1;
+            string_length = strlen(error_message_too_long);
+      			send(sd, error_message_too_long, string_length, MSG_NOSIGNAL);
           }
       		if (!err) {
-
-            first_word_length = size_to_next_space(buffer);
+            sscanf(buffer, "%s %[^\n]", first_word, rest);
       	  	// check for keywords
-      	  	if (!strncmp(first_word, "SHUTDOWN", first_word_length )) {
-      	  		printf("Shutdown angekommen\n");
-      	  		send(sd,ok_shutdown,strlen(ok_shutdown),MSG_NOSIGNAL);
-      	  		shutdown=1;
-      	  	} else if (!strncmp(first_word, "ECHO", first_word_length )) {
-      	  		buffer[valread] = '\0';
-        			send(sd, buffer, strlen(buffer), MSG_NOSIGNAL);
-        		} else if (!strncmp(buffer, "BYE", first_word_length )) {
-        			send(sd,ok_bye,strlen(ok_bye),MSG_NOSIGNAL);
-        			printf("client %d on socket %d disconnected\n", i, sd);
+      	  	if (!strcmp(first_word, "SHUTDOWN")) {
+              if (!strcmp(rest, argv[2])) {
+      	  			send(sd, ok_shutdown, strlen(ok_shutdown), MSG_NOSIGNAL);
+      	  			shutdown=1;
+        				close(sd);
+        				client_socket[i]=0;
+              } else {
+                string_length = strlen(error_wrong_pass);
+      	  			send(sd, error_wrong_pass, string_length, MSG_NOSIGNAL);
+              }
+        		} else if (!strcmp(first_word, "BYE")) {
+        			send(sd, ok_bye, strlen(ok_bye), MSG_NOSIGNAL);
         			close(sd);
         			client_socket[i]=0;
       	  	} else {
@@ -234,6 +241,7 @@ int main(int argc, char *argv[]) {
       	  	}
         	}
         	err=0;
+          bzero(buffer, sizeof(buffer));
         }
       }
     }

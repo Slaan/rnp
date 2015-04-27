@@ -29,6 +29,17 @@ bool ends_with_newline(char* str) {
   return false;
 }
 
+bool has_more_then_one_newline(char* str) {
+  int i = 0;
+  for ( ; *str; ++str) {
+    if (*str == 0x20) 
+      i++;
+  }
+  if (i > 1)
+    return true;
+  return false;
+}
+
 bool cmd_matches(char* cmd, char* str, int length) {
   return strncmp(cmd, str, length-1) != 0;
 }
