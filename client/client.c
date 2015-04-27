@@ -80,6 +80,10 @@ int main(int argc, char *argv[]) {
     CLEAN_BUFFER;
     fgets(buffer, sizeof(buffer), stdin);
     length = strlen(buffer);
+    if (!strncmp(buffer, "HACK1", 5)) {
+      CLEAN_BUFFER
+      strcpy(buffer, "dfasdf\n\n asdf\n asfasdfa\n");
+    }
     if (send(sock_fd, buffer, length, 0) != length) {
       fprintf(stderr, "Couldn't write into socket.\n");
       return 1;
