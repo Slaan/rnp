@@ -15,8 +15,10 @@
 #include "server_opr.h"
 
 #define MAX_CLIENTS 2
-#define BUFFER_SIZE 256
+#define BUFFER_SIZE 16+1
 #define SHUTDOWN_LENGTH 30
+
+#define CLEAN_BUFFER bzero(buffer, sizeof(buffer))
 
 void print_help() {
   fprintf(stderr, "Usage: ./server <port> <password>\n");
@@ -177,7 +179,8 @@ int main(int argc, char *argv[]) {
            	printf("Adding to list of sockets as %d\n" , i); 
          		break;
          	}
-      	} } else {
+      	} 
+      } else {
      		// send connection rejection message and close socket
         string_length = strlen(message2);
      	 	if( send(new_socket, message2, string_length, MSG_NOSIGNAL) != string_length) {
@@ -201,10 +204,14 @@ int main(int argc, char *argv[]) {
         	close(sd);
         	client_socket[i] = 0;
       	} else {
-      		//Check size of received message
-      		if (valread > BUFFER_SIZE) {
+      		// Check size of received message
+      		if (buffer[valread-1] != '\n') {
       			err = 1;
-            // TODO: read until '\0' found!
+            CLEAN_BUFFER;
+            while (buffer[valread-1] != '\n' && buffer[valread] != '\0') {
+              CLEAN_BUFFER;
+              valread = read(sd, buffer, BUFFER_SIZE);
+            }
             string_length = strlen(error_message_too_long);
       			send(sd, error_message_too_long, string_length, MSG_NOSIGNAL);
       		}
